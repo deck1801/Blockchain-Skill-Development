@@ -45,9 +45,28 @@ class Blockchain:
         return new_proof
     
     def hash(silf,block):
-        #This function will give us dedicatred hash of each block an since our 
+        #This function will give us dedicated hash of each block and since our block 
         #contains data into dictinoary format but will change it to json format and use
         #Json damp function
         encoded_block = json.dumps(block,sort_keys=True).encode() #converted to json
         return hashlib.sha256(encoded_block).hexdigest() #hexadecimal format
+    
+    def is_chain_valid(self,chain):
+        #This function will check the validation of the chain simple and fast procedure
+        previous_block = chain[0] #gensis block  
+        block_index = 1 #1st block after gensis block
+        while(block_index<len(chain)): #checking the link by verfying the previous hash
+            block= chain[block_index]
+            if block['previous_hash'] != self.hash(previous_block):
+                return False
+            previous_proof=previous_block['proof'] #validating proof of work 
+            proof=block['proof']
+            hash_operation=hashlib.sha256(str(proof**2-previous_proof**2).encode()).hexdigest()
+            #required hash operation
+            #checking four leading zeros
+            if(hash_operation[:4]!='0000'):
+                return False
+            previous_block = block #incrementing block
+            block_index=block_index+1; #incrementing while loop 
+        return True
 
