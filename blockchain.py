@@ -70,3 +70,66 @@ class Blockchain:
             block_index=block_index+1; #incrementing while loop 
         return True
 
+# Mining of our blockchain
+app=Flask(__name__)
+app.config['JASONIFY_PRETTYPRINT_REGULAR']=False
+blockchain = Blockchain() #very first block chain
+
+@app.route('/mine_block',methods = ['GET']) #routing decorater
+def mine_block():
+    previous_block=blockchain.get_previous_block()
+    previous_proof=previous_block['proof']
+    proof=blockchain.proof_of_work(previous_proof)
+    previous_hash=blockchain.hash(previous_block)
+    block=blockchain.create_block(proof, previous_hash)
+    
+    response={'message':"Congratulations ,you just mined a block",
+              'index':block['index'],
+              'timestamp':block['timestamp'],
+              'proof': block['proof'],
+              'previous_hash':block['previous_hash']
+              }
+    
+    return jsonify(response),200
+
+#getting full blockchain
+@app.route('/get_chain',methods = ['GET'])
+def get_chain():
+    response = {'chain':blockchain.chain,
+                'length': len(blockchain.chain),
+                }
+    return jsonify(response),200
+
+#Running the App
+
+@app.route('/valid_chain',methods = ['GET'])
+def vaild_chain():
+    if(blockchain.is_chain_valid(blockchain.chain)):
+        response={'message':"Chain is successfully verified",}
+    
+    return jsonify(response),200
+app.run(host='0.0.0.0',port=5000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
